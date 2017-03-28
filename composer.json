@@ -1,0 +1,26 @@
+{
+  "name": "dseidl/create-vvv-project",
+  "authors": [
+    {
+      "name": "David Seidl",
+      "email": "david.seidl@towa.at"
+    },
+    {
+      "name": "Simon Ellensohn",
+      "email": "simon.ellensohn@towa.at"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Towa\\": "src/"
+    }
+  },
+  "require": {
+    "league/climate": "^3.2",
+    "symfony/yaml": "^3.2",
+    "illuminate/support": "^5.4"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "*"
+  }
+}
