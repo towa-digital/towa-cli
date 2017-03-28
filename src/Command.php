@@ -3,21 +3,16 @@ namespace Towa\Setup;
 
 use FilesystemIterator;
 use League\CLImate\CLImate;
-use Towa\Commands\Delete;
-use Towa\Commands\NewProject;
+use Towa\Setup\Commands\Delete;
+use Towa\Setup\Commands\NewProject;
 
-/**
- * Created by TOWA.
- * User: dseidl
- * Date: 28/03/17
- */
 class Command
 {
     /* @var CLImate */
     public $climate;
 
     /**
-     * NewCommand constructor.
+     * Command constructor.
      *
      * @param $climate CLImate
      */
@@ -83,14 +78,16 @@ class Command
 
     private function getArt()
     {
-        $count = iterator_count(new FilesystemIterator(__DIR__ . '/../art', FilesystemIterator::SKIP_DOTS));
+        $count = iterator_count(
+            new FilesystemIterator(__DIR__.'/../art', FilesystemIterator::SKIP_DOTS)
+        );
 
         return 'towa' . rand(1, $count);
     }
 
     private function getAnimationDirection()
     {
-        $directions = ['left', 'bottom', 'top'];
+        $directions = ['bottom', 'top'];
         return $directions[array_rand($directions, 1)];
     }
 }

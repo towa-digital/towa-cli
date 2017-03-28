@@ -1,13 +1,9 @@
 <?php
-/**
- * Created by TOWA.
- * User: dseidl
- * Date: 28/03/17
- */
+
 namespace Towa\Setup\Commands;
 
-use Towa\Command;
-use Towa\ParseYaml;
+use Towa\Setup\Command;
+use Towa\Setup\Utilities\YamlParser;
 
 class Delete extends Command
 {
@@ -25,8 +21,8 @@ class Delete extends Command
 
     private function deleteSiteFromConfig($siteName)
     {
-        $config = ParseYaml::readFile('/Users/dseidl/Code/vvv/vvv-config.yml');
+        $config = YamlParser::readFile(get_config('path_config'));
         unset($config['sites'][$siteName]);
-        ParseYaml::writeFile($config, '/Users/dseidl/Code/vvv/vvv-config-temp.yml');
+        YamlParser::writeFile($config, get_config('path_config'));
     }
 }
