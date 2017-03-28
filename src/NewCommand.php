@@ -1,14 +1,11 @@
 <?php
-namespace Towa;
+
+namespace Towa\Setup;
 
 use FilesystemIterator;
 use League\CLImate\CLImate;
+use Towa\Setup\Utilities\YamlParser;
 
-/**
- * Created by TOWA.
- * User: dseidl
- * Date: 28/03/17
- */
 class NewCommand
 {
     /* @var CLImate */
@@ -28,11 +25,12 @@ class NewCommand
     {
         $this->climate->style->addColor('towa', 136);
         $this->drawTowa();
+
         $siteName = $this->getSiteName();
         $site = $this->buildSite($siteName);
 
         try {
-            ParseYaml::edit($siteName, $site);
+            YamlParser::edit($siteName, $site);
         } catch (\Exception $e) {
             $this->climate->error('failed to update vvv-config.yml');
             $this->climate->error($e->getMessage());
@@ -45,7 +43,6 @@ class NewCommand
     {
         $this->climate->towa()->addArt(__DIR__ . '/../art');
         $this->climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
-//        $this->climate->draw('towa');
     }
 
     private function getSiteName()
@@ -55,17 +52,21 @@ class NewCommand
 
     private function getRepoUrl()
     {
-        return $this->question('Repo Url (ssh)? [<yellow>Boilerplate</yellow>]', true, 'git@bitbucket.org:towa_gmbh/towa-workflow-boilerplate.git');
+        return $this->question('Repo Url (ssh)? [<yellow>Boilerplate</yellow>]', true, get_config('boilerplate'));
     }
 
     private function getBranch()
     {
-        return $this->question('Branch? [<yellow>master</yellow>]', true, 'master');
+        $default = get_config('branch');
+
+        return $this->question("Branch? [<yellow>{$default}</yellow>]", true, $default);
     }
 
     private function getPhpVersion()
     {
-        return $this->question('PHP Version? [<yellow>php71</yellow>]', true, 'php71');
+        $default = get_config('phpVersion');
+
+        return $this->question("PHP Version? [<yellow>{$default}</yellow>]", true, $default);
     }
 
     private function buildSite($siteName)
@@ -73,9 +74,7 @@ class NewCommand
         $repo = $this->getRepoUrl();
         $branch = $this->getBranch();
         $phpVersion = $this->getPhpVersion();
-        $host = [
-            $siteName . '.dev'
-        ];
+        $host = [$siteName.'.dev'];
 
         return [
             'repo' => $repo,
@@ -104,10 +103,11 @@ class NewCommand
 
     private function getArt()
     {
-        $count = iterator_count(new FilesystemIterator(__DIR__ . '/../art', FilesystemIterator::SKIP_DOTS));
-        dump($count);
+        $count = iterator_count(
+            new FilesystemIterator(__DIR__.'/../art', FilesystemIterator::SKIP_DOTS)
+        );
 
-        return 'towa' . rand(1, $count);
+        return 'towa'.rand(1, $count);
     }
 
     private function getAnimationDirection()
