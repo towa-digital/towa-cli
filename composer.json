@@ -1,5 +1,6 @@
 {
   "name": "dseidl/create-vvv-project",
+  "license": "MIT",
   "authors": [
     {
       "name": "David Seidl",
@@ -12,8 +13,11 @@
   ],
   "autoload": {
     "psr-4": {
-      "Towa\\": "src/"
-    }
+      "Towa\\Setup\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
   },
   "require": {
     "league/climate": "^3.2",

@@ -8,4 +8,4 @@ if (file_exists(__DIR__ . '/../../autoload.php')) {
     require __DIR__.'/vendor/autoload.php';
 }
 
-(new Towa\NewCommand(new League\CLImate\CLImate))->run();
+(new Towa\Command(new League\CLImate\CLImate))->run();
