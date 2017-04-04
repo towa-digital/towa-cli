@@ -3,10 +3,13 @@
 namespace Towa\Setup\Commands;
 
 use Towa\Setup\Command;
+use Towa\Setup\Interfaces\CommandInterface;
 use Towa\Setup\Utilities\YamlParser;
 
-class Delete extends Command
+class Delete extends Command implements CommandInterface
 {
+    public $description = 'Delete some old shit';
+
     public function execute()
     {
         $siteName = $this->getSiteName();

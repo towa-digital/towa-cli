@@ -1,4 +1,5 @@
 <?php
+
 namespace Towa\Setup\Utilities;
 
 use Symfony\Component\Yaml\Yaml;

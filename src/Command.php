@@ -3,13 +3,16 @@ namespace Towa\Setup;
 
 use FilesystemIterator;
 use League\CLImate\CLImate;
+use Symfony\Component\Finder\Finder;
 use Towa\Setup\Commands\Delete;
 use Towa\Setup\Commands\NewProject;
+use Towa\Setup\Utilities\ConfigParser;
+use Towa\Setup\Utilities\YamlParser;
 
 class Command
 {
     /* @var CLImate */
-    public $climate;
+    public static $climate;
 
     /**
      * Command constructor.
@@ -18,45 +21,38 @@ class Command
      */
     public function __construct(CLImate $climate)
     {
-        $this->climate = $climate;
+        self::$climate = $climate;
     }
 
     public function run()
     {
         $this->drawTowa();
 
+        (new ConfigParser());
+
         $this->decideWhatToExecute();
 
         // start provisioning
-        $this->climate->info('Done!');
+        self::$climate->info('Done!');
     }
 
     private function drawTowa()
     {
-        $this->climate->towa()->addArt(__DIR__ . '/../art');
-        $this->climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
+        self::$climate->towa()->addArt(__DIR__ . '/../art');
+        self::$climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
     }
 
     protected function decideWhatToExecute()
     {
-        $input = $this->climate->radio('Was soll gemacht werden?', [
-            'NewProject' => 'Seite erstellen',
-            'Delete' => 'Seite löschen',
-        ]);
+        $input = self::$climate->radio('Whatcha wanna do?', $this->getOptions());
+        $class = $input->prompt();
 
-        switch ($input->prompt()) {
-            case 'NewProject':
-                (new NewProject($this->climate))->execute();
-                break;
-            case 'Delete':
-                (new Delete($this->climate))->execute();
-                break;
-        }
+        return (new $class(self::$climate))->execute();
     }
 
     protected function question($question, $required = false, $default = '')
     {
-        $input = $this->climate->input($question);
+        $input = self::$climate->input($question);
 
         if ($required) {
             $input->accept(function ($response) {
@@ -89,5 +85,34 @@ class Command
     {
         $directions = ['bottom', 'top'];
         return $directions[array_rand($directions, 1)];
+    }
+
+    public static function log(string $message)
+    {
+        return self::$climate->comment($message);
+    }
+
+    private function getOptions()
+    {
+        $options = [];
+
+        $finder = new Finder;
+        $finder->files()->name('*.php')->in(__DIR__.'/Commands');
+
+        foreach ($finder as $file) {
+            $ns = 'Towa\Setup\Commands';
+            if ($relativePath = $file->getRelativePath()) {
+                $ns .= '\\'.strtr($relativePath, '/', '\\');
+            }
+            $class = $ns.'\\'.$file->getBasename('.php');
+
+            $r = new \ReflectionClass($class);
+
+            if ($r->isSubclassOf('Towa\\Setup\\Command')) {
+                $options[$r->name] = ($r->newInstanceWithoutConstructor())->description;
+            }
+        }
+
+        return $options;
     }
 }
