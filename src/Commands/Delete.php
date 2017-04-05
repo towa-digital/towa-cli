@@ -12,20 +12,38 @@ class Delete extends Command implements CommandInterface
 
     public function execute()
     {
-        $siteName = $this->getSiteName();
+        $availableSites = array_keys(get_sites());
+
+        if (empty($availableSites)) {
+            return self::$climate->comment("There is no site set in your config file!");
+        }
+
+        $list = self::$climate->confirm('Choose sites from list?');
+
+        if ($list->confirmed()) {
+            $input = self::$climate->checkboxes('Select all sites you wish to delete', $availableSites);
+
+            $sites = $input->prompt();
+        } else {
+            $sites = [$this->getSiteName()];
+        }
 
         try {
-            $this->deleteSiteFromConfig($siteName);
+            $this->deleteSiteFromConfig($sites);
         } catch (\Exception $e) {
-            $this->climate->error('failed to update vvv-config.yml');
-            $this->climate->error($e->getMessage());
+            self::$climate->error('failed to update vvv-config.yml');
+            self::$climate->error($e->getMessage());
         }
     }
 
-    private function deleteSiteFromConfig($siteName)
+    private function deleteSiteFromConfig($sites)
     {
         $config = YamlParser::readFile(get_config('path_config'));
-        unset($config['sites'][$siteName]);
+
+        foreach ($sites as $site) {
+            unset($config['sites'][$site]);
+        }
+
         YamlParser::writeFile($config, get_config('path_config'));
     }
 }

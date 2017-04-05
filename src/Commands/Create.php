@@ -5,10 +5,8 @@ use Towa\Setup\Command;
 use Towa\Setup\Interfaces\CommandInterface;
 use Towa\Setup\Utilities\YamlParser;
 
-class NewProject extends Command implements CommandInterface
+class Create extends Command implements CommandInterface
 {
-    public $description = 'Create some new shit';
-
     public function execute()
     {
         $siteName = $this->getSiteName();

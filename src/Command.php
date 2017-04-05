@@ -3,11 +3,7 @@ namespace Towa\Setup;
 
 use FilesystemIterator;
 use League\CLImate\CLImate;
-use Symfony\Component\Finder\Finder;
-use Towa\Setup\Commands\Delete;
-use Towa\Setup\Commands\NewProject;
-use Towa\Setup\Utilities\ConfigParser;
-use Towa\Setup\Utilities\YamlParser;
+use Towa\Setup\Utilities\Config;
 
 class Command
 {
@@ -28,7 +24,7 @@ class Command
     {
         $this->drawTowa();
 
-        (new ConfigParser());
+        (new Config());
 
         $this->decideWhatToExecute();
 
@@ -44,8 +40,17 @@ class Command
 
     protected function decideWhatToExecute()
     {
-        $input = self::$climate->radio('Whatcha wanna do?', $this->getOptions());
+        $input = self::$climate->radio('Whatcha wanna do?', [
+            'Towa\Setup\Commands\Create' => 'Add new site',
+            'Towa\Setup\Commands\Delete' => 'Delete existing sites',
+        ]);
+
         $class = $input->prompt();
+
+        // TODO: different way to reprompt?
+        if (empty($class)) {
+            $this->decideWhatToExecute();
+        }
 
         return (new $class(self::$climate))->execute();
     }
@@ -90,29 +95,5 @@ class Command
     public static function log(string $message)
     {
         return self::$climate->comment($message);
-    }
-
-    private function getOptions()
-    {
-        $options = [];
-
-        $finder = new Finder;
-        $finder->files()->name('*.php')->in(__DIR__.'/Commands');
-
-        foreach ($finder as $file) {
-            $ns = 'Towa\Setup\Commands';
-            if ($relativePath = $file->getRelativePath()) {
-                $ns .= '\\'.strtr($relativePath, '/', '\\');
-            }
-            $class = $ns.'\\'.$file->getBasename('.php');
-
-            $r = new \ReflectionClass($class);
-
-            if ($r->isSubclassOf('Towa\\Setup\\Command')) {
-                $options[$r->name] = ($r->newInstanceWithoutConstructor())->description;
-            }
-        }
-
-        return $options;
     }
 }

@@ -4,7 +4,7 @@ namespace Towa\Setup\Utilities;
 
 use Towa\Setup\Command;
 
-class ConfigParser
+class Config
 {
     /** @var string */
     private $path;
@@ -25,8 +25,8 @@ class ConfigParser
             $this->createConfigFileIfItDoesntExist();
         }
 
-        Command::log('Ultimate configurations injected! Watch out!');
         self::$config = YamlParser::readFile($this->path);
+        Command::log('Configurations successfully loaded!');
     }
 
     public function createConfigFileIfItDoesntExist()
