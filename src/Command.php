@@ -1,4 +1,5 @@
 <?php
+
 namespace Towa\Setup;
 
 use FilesystemIterator;
@@ -34,7 +35,7 @@ class Command
 
     private function drawTowa()
     {
-        self::$climate->towa()->addArt(__DIR__ . '/../art');
+        self::$climate->towa()->addArt(__DIR__.'/../art');
         self::$climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
     }
 
@@ -83,12 +84,13 @@ class Command
             new FilesystemIterator(__DIR__.'/../art', FilesystemIterator::SKIP_DOTS)
         );
 
-        return 'towa' . rand(1, $count);
+        return 'towa'.rand(1, $count);
     }
 
     private function getAnimationDirection()
     {
         $directions = ['bottom', 'top'];
+
         return $directions[array_rand($directions, 1)];
     }
 

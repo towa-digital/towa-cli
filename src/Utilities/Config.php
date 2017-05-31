@@ -20,7 +20,7 @@ class Config
 
     public function initialize()
     {
-        if (! is_file($this->path)) {
+        if (!is_file($this->path)) {
             Command::log('Hold up! Creating a new config file');
             $this->createConfigFileIfItDoesntExist();
         }

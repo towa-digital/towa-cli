@@ -1,4 +1,5 @@
 <?php
+
 namespace Towa\Setup\Commands;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -24,7 +25,7 @@ class Create extends Command implements CommandInterface
         try {
             $this->provisionSite($siteName);
         } catch (ProcessFailedException $e) {
-            self::$climate->error("Meh... failed to provision site");
+            self::$climate->error('Meh... failed to provision site');
             self::$climate->error($e->getMessage());
         }
 
@@ -65,10 +66,10 @@ class Create extends Command implements CommandInterface
         $host = [$siteName.'.dev'];
 
         return [
-            'repo' => $repo,
-            'branch' => $branch,
+            'repo'           => $repo,
+            'branch'         => $branch,
             'nginx_upstream' => $phpVersion,
-            'hosts' => $host,
+            'hosts'          => $host,
         ];
     }
 
@@ -77,7 +78,7 @@ class Create extends Command implements CommandInterface
         $vvv = get_config('path');
         $provision = new Process("cd {$vvv} && vagrant provision --provision-with site-{$siteName}");
 
-        $provision->setTimeout(0)->mustRun(function($type, $buffer) {
+        $provision->setTimeout(0)->mustRun(function ($type, $buffer) {
             echo $buffer;
         });
     }
@@ -85,7 +86,7 @@ class Create extends Command implements CommandInterface
     private function notifyOnSuccess($siteName)
     {
         self::$climate->info("Site: {$siteName}.dev");
-        self::$climate->info("User: towa_admin");
-        self::$climate->info("Password: dev");
+        self::$climate->info('User: towa_admin');
+        self::$climate->info('Password: dev');
     }
 }
