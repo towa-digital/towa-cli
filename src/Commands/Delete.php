@@ -65,7 +65,7 @@ class Delete extends Command implements CommandInterface
         try {
             self::$climate->info('clear dbs');
 
-            $deleteDb->setTimeout(0)->run(function($type, $buffer) {
+            $deleteDb->setTimeout(0)->run(function ($type, $buffer) {
                 echo $buffer;
             });
         } catch (ProcessFailedException $e) {
@@ -80,18 +80,19 @@ class Delete extends Command implements CommandInterface
     {
         $vvv = get_config('path');
 
-        foreach ( $sites as $siteName ) {
-            $this->removeDirectory($vvv . '/www/' . $siteName);
+        foreach ($sites as $siteName) {
+            $this->removeDirectory($vvv.'/www/'.$siteName);
         }
 
         return $this;
     }
-    
-    private function buildSql($sites) {
+
+    private function buildSql($sites)
+    {
         $vvv = get_config('path');
         $sql = "cd {$vvv} && vagrant ssh --command \"mysql -u root -e '";
 
-        foreach ( $sites as $siteName ) {
+        foreach ($sites as $siteName) {
             $sql .= "DROP DATABASE IF EXISTS {$siteName}; ";
         }
 
@@ -107,7 +108,7 @@ class Delete extends Command implements CommandInterface
         try {
             self::$climate->info("delete {$path}");
 
-            $removeProcess->setTimeout(0)->run(function($type, $buffer) {
+            $removeProcess->setTimeout(0)->run(function ($type, $buffer) {
                 echo $buffer;
             });
         } catch (ProcessFailedException $e) {
