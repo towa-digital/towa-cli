@@ -15,7 +15,7 @@ class Delete extends Command implements CommandInterface
         $availableSites = array_keys(get_sites());
 
         if (empty($availableSites)) {
-            return self::$climate->comment("There is no site set in your config file!");
+            return self::$climate->comment('There is no site set in your config file!');
         }
 
         $list = self::$climate->confirm('Choose sites from list?');
