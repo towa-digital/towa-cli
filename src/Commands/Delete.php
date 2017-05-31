@@ -41,7 +41,8 @@ class Delete extends Command implements CommandInterface
     private function deleteSites($sites)
     {
         $this->deleteSiteDb($sites)
-             ->deleteSiteFromConfig($sites);
+             ->deleteSiteFromConfig($sites)
+             ->deleteSiteFiles($sites);
     }
 
     private function deleteSiteFromConfig($sites)
@@ -62,12 +63,25 @@ class Delete extends Command implements CommandInterface
         $deleteDb = new Process($this->buildSql($sites));
 
         try {
+            self::$climate->info('clear dbs');
+
             $deleteDb->setTimeout(0)->run(function($type, $buffer) {
                 echo $buffer;
             });
         } catch (ProcessFailedException $e) {
             self::$climate->error('Meh... failed to delete dbs');
             self::$climate->error($e->getMessage());
+        }
+
+        return $this;
+    }
+
+    private function deleteSiteFiles($sites)
+    {
+        $vvv = get_config('path');
+
+        foreach ( $sites as $siteName ) {
+            $this->removeDirectory($vvv . '/www/' . $siteName);
         }
 
         return $this;
@@ -86,4 +100,19 @@ class Delete extends Command implements CommandInterface
         return $sql;
     }
 
+    private function removeDirectory($path)
+    {
+        $removeProcess = new Process("rm -rf {$path}");
+
+        try {
+            self::$climate->info("delete {$path}");
+
+            $removeProcess->setTimeout(0)->run(function($type, $buffer) {
+                echo $buffer;
+            });
+        } catch (ProcessFailedException $e) {
+            self::$climate->error('Meh... failed to delete the files');
+            self::$climate->error($e->getMessage());
+        }
+    }
 }
