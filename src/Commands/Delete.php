@@ -148,7 +148,7 @@ class Delete extends Command implements CommandInterface
             $command .= " *{$siteName}*";
         }
 
-        $command .= "\"";
+        $command .= '\"';
 
         return $command;
     }
