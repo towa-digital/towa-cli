@@ -11,6 +11,7 @@ use Towa\Setup\Utilities\YamlParser;
 class Delete extends Command implements CommandInterface
 {
     public $description = 'Delete some old shit';
+    public $sites = [];
 
     public function execute()
     {
@@ -25,31 +26,34 @@ class Delete extends Command implements CommandInterface
         if ($list->confirmed()) {
             $input = self::$climate->checkboxes('Select all sites you wish to delete', $availableSites);
 
-            $sites = $input->prompt();
+            $this->sites = $input->prompt();
         } else {
-            $sites = [$this->getSiteName()];
+            $this->sites = [$this->getSiteName()];
         }
 
         try {
-            $this->deleteSites($sites);
+            $this->deleteSites();
         } catch (\Exception $e) {
             self::$climate->error('failed to update vvv-config.yml');
             self::$climate->error($e->getMessage());
         }
+
+        return true;
     }
 
-    private function deleteSites($sites)
+    private function deleteSites()
     {
-        $this->deleteSiteDb($sites)
-             ->deleteSiteFromConfig($sites)
-             ->deleteSiteFiles($sites);
+        $this->deleteSiteDb()
+             ->deleteSiteFromConfig()
+             ->deleteSiteNginxConfig()
+             ->deleteSiteFiles();
     }
 
-    private function deleteSiteFromConfig($sites)
+    private function deleteSiteFromConfig()
     {
         $config = YamlParser::readFile(get_config('path_config'));
 
-        foreach ($sites as $site) {
+        foreach ($this->sites as $site) {
             unset($config['sites'][$site]);
         }
 
@@ -58,12 +62,30 @@ class Delete extends Command implements CommandInterface
         return $this;
     }
 
-    private function deleteSiteDb($sites)
+    private function deleteSiteNginxConfig()
     {
-        $deleteDb = new Process($this->buildSql($sites));
+        $deleteNginxConfig = new Process($this->buildDeleteNginxCommand($this->sites));
 
         try {
-            self::$climate->info('clear dbs');
+            self::$climate->info('remove nginx configs...');
+
+            $deleteNginxConfig->setTimeout(0)->run(function ($type, $buffer) {
+                echo $buffer;
+            });
+        } catch (ProcessFailedException $e) {
+            self::$climate->error('Meh... failed to delete dbs');
+            self::$climate->error($e->getMessage());
+        }
+
+        return $this;
+    }
+
+    private function deleteSiteDb()
+    {
+        $deleteDb = new Process($this->buildSql($this->sites));
+
+        try {
+            self::$climate->info('clear dbs...');
 
             $deleteDb->setTimeout(0)->run(function ($type, $buffer) {
                 echo $buffer;
@@ -76,11 +98,11 @@ class Delete extends Command implements CommandInterface
         return $this;
     }
 
-    private function deleteSiteFiles($sites)
+    private function deleteSiteFiles()
     {
         $vvv = get_config('path');
 
-        foreach ($sites as $siteName) {
+        foreach ($this->sites as $siteName) {
             $this->removeDirectory($vvv.'/www/'.$siteName);
         }
 
@@ -106,7 +128,7 @@ class Delete extends Command implements CommandInterface
         $removeProcess = new Process("rm -rf {$path}");
 
         try {
-            self::$climate->info("delete {$path}");
+            self::$climate->info("delete {$path}...");
 
             $removeProcess->setTimeout(0)->run(function ($type, $buffer) {
                 echo $buffer;
@@ -115,5 +137,19 @@ class Delete extends Command implements CommandInterface
             self::$climate->error('Meh... failed to delete the files');
             self::$climate->error($e->getMessage());
         }
+    }
+
+    private function buildDeleteNginxCommand($sites)
+    {
+        $vvv = get_config('path');
+        $command = "cd {$vvv} && vagrant ssh --command \"cd /etc/nginx/custom-sites && sudo rm -rf";
+
+        foreach ($sites as $siteName) {
+            $command .= " *{$siteName}*";
+        }
+
+        $command .= "\"";
+
+        return $command;
     }
 }

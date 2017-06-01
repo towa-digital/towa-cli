@@ -30,6 +30,8 @@ class Create extends Command implements CommandInterface
         }
 
         $this->notifyOnSuccess($siteName);
+
+        return true;
     }
 
     private function saveSiteToConfig($siteName, $site)
