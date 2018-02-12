@@ -67,7 +67,7 @@ class Create extends Command implements CommandInterface
             'branch'         => $this->getBranch(),
             'nginx_upstream' => $this->getPhpVersion(),
             'hosts'          => [
-                $siteName.get_config('tld'),
+                $siteName.'.test',
             ],
         ];
     }
@@ -84,9 +84,7 @@ class Create extends Command implements CommandInterface
 
     private function notifyOnSuccess($siteName)
     {
-        $site = $siteName.get_config('tld');
-
-        self::$climate->info("Site: {$site}");
+        self::$climate->info("Site: {$siteName}.dev");
         self::$climate->info('User: towa_admin');
         self::$climate->info('Password: dev');
     }

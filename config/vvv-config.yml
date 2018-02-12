@@ -4,4 +4,3 @@ path_config: placeholder
 boilerplate: git@bitbucket.org:towa_gmbh/towa-workflow-boilerplate.git
 branch: master
 phpVersion: php71
-tld: .test
