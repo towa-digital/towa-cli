@@ -84,7 +84,7 @@ class Create extends Command implements CommandInterface
 
     private function notifyOnSuccess($siteName)
     {
-        self::$climate->info("Site: {$siteName}.dev");
+        self::$climate->info("Site: {$siteName}.test");
         self::$climate->info('User: towa_admin');
         self::$climate->info('Password: dev');
     }
