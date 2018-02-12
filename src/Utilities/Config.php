@@ -13,29 +13,39 @@ class Config
 
     public function __construct()
     {
-        $this->path = getenv('HOME').'/.towa-config';
+        $this->path = getenv('HOME').'/vvv';
+        $this->configPath = $this->path.'/vvv-config.yml';
 
         $this->initialize();
     }
 
     public function initialize()
     {
-        if (!is_file($this->path)) {
-            Command::log('Hold up! Creating a new config file');
-            $this->createConfigFileIfItDoesntExist();
-        }
+        $this->createConfigFileIfItDoesntExist();
 
-        self::$config = YamlParser::readFile($this->path);
+        self::$config = YamlParser::readFile($this->configPath);
         Command::log('Configurations successfully loaded!');
     }
 
     public function createConfigFileIfItDoesntExist()
     {
-        copy(__DIR__.'/../../config/.towa-config', $this->path);
-        $config = YamlParser::readFile($this->path);
+        if (file_exists($this->configPath)) {
+            return;
+        }
+
+        Command::log('Hold up! Creating a new config file');
+
+        if (!file_exists($this->path)) {
+            mkdir($this->path);
+        }
+
+        copy(__DIR__.'/../../config/vvv-config.yml', $this->configPath);
+
+        $config = YamlParser::readFile($this->configPath);
         $config['path'] = getenv('HOME').'/vvv';
         $config['path_config'] = getenv('HOME').'/vvv/vvv-config.yml';
-        YamlParser::writeFile($config, $this->path);
+
+        YamlParser::writeFile($config, $this->configPath);
     }
 
     public static function set(string $key, $value)
