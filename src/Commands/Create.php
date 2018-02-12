@@ -62,16 +62,13 @@ class Create extends Command implements CommandInterface
 
     private function buildSite($siteName)
     {
-        $repo = $this->getRepoUrl();
-        $branch = $this->getBranch();
-        $phpVersion = $this->getPhpVersion();
-        $host = [$siteName.'.dev'];
-
         return [
-            'repo'           => $repo,
-            'branch'         => $branch,
-            'nginx_upstream' => $phpVersion,
-            'hosts'          => $host,
+            'repo'           => $this->getRepoUrl(),
+            'branch'         => $this->getBranch(),
+            'nginx_upstream' => $this->getPhpVersion(),
+            'hosts'          => [
+                $siteName.get_config('tld'),
+            ],
         ];
     }
 
@@ -87,7 +84,9 @@ class Create extends Command implements CommandInterface
 
     private function notifyOnSuccess($siteName)
     {
-        self::$climate->info("Site: {$siteName}.dev");
+        $site = $siteName.get_config('tld');
+
+        self::$climate->info("Site: {$site}");
         self::$climate->info('User: towa_admin');
         self::$climate->info('Password: dev');
     }
