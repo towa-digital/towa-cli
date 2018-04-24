@@ -1,0 +1,32 @@
+check devilbox -->
+if not available --> link to documentation
+(phase 2 - install devilbox with customized devilbox setup)
+
+
+create project command --> 
+0. check devilbox
+1. projektname definieren
+2. repository definieren
+3. branch definieren
+
+4. devilbox-project-setup
+- project-folder anlegen --> data/www/project-name
+- htdocs folder anlegen
+- eintrag in host-file anlegen
+-- checken bzgl automatischen .test/.local v-host erkennung
+- database anlegen --> project-name via cmd-line
+
+5. eigentlicher project setup:
+bei wordpress-projekt
+- repo pullen
+- git flow initialisieren
+- config anlegen ( .env )
+- composer ausführen
+- wp-cli ausführen ( installation wordpress )
+-- plugins aktivieren
+-- theme aktivieren
+-- settings setzen
+- yarn ausführen
+( status ausgeben: site-url, user pwd )
+
+6. Status ausgeben
