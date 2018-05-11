@@ -2,8 +2,7 @@ check devilbox -->
 if not available --> link to documentation
 (phase 2 - install devilbox with customized devilbox setup)
 
-
-create project command --> 
+create project command -->
 0. check devilbox
 1. projektname definieren
 2. repository definieren

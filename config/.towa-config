@@ -2,5 +2,5 @@
 path: placeholder
 path_config: placeholder
 boilerplate: git@bitbucket.org:towa_gmbh/towa-workflow-boilerplate.git
-branch: master
+branch: enhancement/devilbox-integration
 phpVersion: php71

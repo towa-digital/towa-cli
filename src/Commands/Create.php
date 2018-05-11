@@ -10,28 +10,47 @@ use Towa\Setup\Utilities\YamlParser;
 
 class Create extends Command implements CommandInterface
 {
+    public function checkForDevilbox()
+    {
+        $dirName = '/webroot/devilbox/';
+
+        if (file_exists($dirName)) {
+            echo "The file $dirName exists";
+        } else {
+            echo "The file $dirName does not exist";
+        }
+    }
+
     public function execute()
     {
-        $siteName = $this->getSiteName();
-        $site = $this->buildSite($siteName);
+        $dirName = '~/webroot/devilbox/';
 
-        try {
-            $this->saveSiteToConfig($siteName, $site);
-        } catch (\Exception $e) {
-            self::$climate->error('Meh... failed to update vvv-config.yml');
-            self::$climate->error($e->getMessage());
+        if (!file_exists($dirName) && !is_dir($dirName)) {
+            echo "Installier doch zersch mol die Devilbox, Junge -> git clone https://github.com/cytopia/devilbox";
+
+        } else {
+            $siteName = $this->getSiteName();
+            $site = $this->buildSite($siteName);
+
+            try {
+                $this->saveSiteToConfig($siteName, $site);
+            } catch (\Exception $e) {
+                self::$climate->error('Meh... failed to update vvv-config.yml');
+                self::$climate->error($e->getMessage());
+            }
+            $this->notifyOnSuccess($siteName);
+
+            return true;
         }
-
+        /*
         try {
             $this->provisionSite($siteName);
         } catch (ProcessFailedException $e) {
             self::$climate->error('Meh... failed to provision site');
             self::$climate->error($e->getMessage());
         }
+        */
 
-        $this->notifyOnSuccess($siteName);
-
-        return true;
     }
 
     private function saveSiteToConfig($siteName, $site)
@@ -71,7 +90,7 @@ class Create extends Command implements CommandInterface
             ],
         ];
     }
-
+/*
     private function provisionSite($siteName)
     {
         $vvv = get_config('path');
@@ -81,6 +100,7 @@ class Create extends Command implements CommandInterface
             echo $buffer;
         });
     }
+*/
 
     private function notifyOnSuccess($siteName)
     {
