@@ -3,7 +3,7 @@ if not available --> link to documentation
 (phase 2 - install devilbox with customized devilbox setup)
 
 create project command -->
-0. check devilbox
+0. check devilbox ( soft version )
 1. projektname definieren
 2. repository definieren
 3. branch definieren

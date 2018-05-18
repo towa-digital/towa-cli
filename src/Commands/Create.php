@@ -2,6 +2,7 @@
 
 namespace Towa\Setup\Commands;
 
+use League\CLImate\CLImate;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Towa\Setup\Command;
@@ -10,27 +11,57 @@ use Towa\Setup\Utilities\YamlParser;
 
 class Create extends Command implements CommandInterface
 {
-    public function checkForDevilbox()
-    {
-        $dirName = '/webroot/devilbox/';
+    private $devilboxSrc;
+    private $publicFolder;
 
-        if (file_exists($dirName)) {
-            echo "The file $dirName exists";
-        } else {
-            echo "The file $dirName does not exist";
-        }
+    public function __construct(CLImate $climate)
+    {
+        parent::__construct($climate);
+        $this->publicFolder = '/data/www/';
+    }
+
+    public function softCheckDevilbox()
+    {
+        return ($a = file_exists($this->devilboxSrc . '/docker-compose.yml'));
     }
 
     public function execute()
     {
-        $dirName = '~/webroot/devilbox/';
 
-        if (!file_exists($dirName) && !is_dir($dirName)) {
+        $this->devilboxSrc = $this->getDevilboxPath();
+
+        if (!$this->softCheckDevilbox()) {
             echo "Installier doch zersch mol die Devilbox, Junge -> git clone https://github.com/cytopia/devilbox";
 
         } else {
             $siteName = $this->getSiteName();
-            $site = $this->buildSite($siteName);
+            $projectFolder = $this->createProjectPath($siteName);
+            $repoConfig = $this->getRepoConfiguration();
+
+//            if (mkdir($projectFolder)){
+//
+//                // boilerplate pullen via git
+//                //
+//            }
+
+            $result = shell_exec("cd " . $this->devilboxSrc . $this->publicFolder . " && git clone " . $repoConfig['repo'] . ' ' . $siteName . '/htdocs' );
+
+            if ( null === $result )
+            {
+                echo 'oha';
+            }
+            else {
+                // datenbank erstellen
+                // host file eintrag --> wichtig document-root einstellen auf /web
+                    // version 1, pwd eingabe weil sudo rechte notwendig
+                    // version 2, globale localhost-umleitung
+                // .env für projekt erstellen
+                // wp downloaden
+                // wp installieren
+                // info für user mit login-url
+            }
+
+
 
             try {
                 $this->saveSiteToConfig($siteName, $site);
@@ -42,14 +73,6 @@ class Create extends Command implements CommandInterface
 
             return true;
         }
-        /*
-        try {
-            $this->provisionSite($siteName);
-        } catch (ProcessFailedException $e) {
-            self::$climate->error('Meh... failed to provision site');
-            self::$climate->error($e->getMessage());
-        }
-        */
 
     }
 
@@ -58,6 +81,14 @@ class Create extends Command implements CommandInterface
         $config = YamlParser::readFile(get_config('path_config'));
         $config['sites'][$siteName] = $site;
         YamlParser::writeFile($config, get_config('path_config'));
+    }
+
+    private function getRepoConfiguration()
+    {
+        return [
+            'repo' => $this->getRepoUrl(),
+            'branch' => $this->getBranch(),
+        ];
     }
 
     private function getRepoUrl()
@@ -72,40 +103,20 @@ class Create extends Command implements CommandInterface
         return $this->question("Branch? [<yellow>{$default}</yellow>]", true, $default);
     }
 
-    private function getPhpVersion()
-    {
-        $default = get_config('phpVersion');
-
-        return $this->question("PHP Version? [<yellow>{$default}</yellow>]", true, $default);
-    }
-
-    private function buildSite($siteName)
-    {
-        return [
-            'repo'           => $this->getRepoUrl(),
-            'branch'         => $this->getBranch(),
-            'nginx_upstream' => $this->getPhpVersion(),
-            'hosts'          => [
-                $siteName.'.test',
-            ],
-        ];
-    }
-/*
-    private function provisionSite($siteName)
-    {
-        $vvv = get_config('path');
-        $provision = new Process("cd {$vvv} && vagrant provision --provision-with site-{$siteName}");
-
-        $provision->setTimeout(0)->mustRun(function ($type, $buffer) {
-            echo $buffer;
-        });
-    }
-*/
-
     private function notifyOnSuccess($siteName)
     {
         self::$climate->info("Site: {$siteName}.test");
         self::$climate->info('User: towa_admin');
         self::$climate->info('Password: dev');
+    }
+
+    private function getDevilboxPath()
+    {
+        return $this->question('<cyan>Devilbox Installation Dir?</cyan>', true);
+    }
+
+    private function createProjectPath($siteName)
+    {
+        return $this->devilboxSrc . $this->publicFolder . $siteName;
     }
 }
