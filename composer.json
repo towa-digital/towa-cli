@@ -24,8 +24,9 @@
     },
     "require": {
         "league/climate": "^3.2",
+        "symfony/process": "^3.2",
         "symfony/yaml": "^3.2",
-        "symfony/process": "^3.2"
+        "tightenco/collect": "^5"
     },
     "require-dev": {
         "symfony/var-dumper": "*"

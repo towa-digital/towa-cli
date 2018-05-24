@@ -110,7 +110,6 @@ class Create extends Command implements CommandInterface
 
     private function createDatabase($siteName)
     {
-        $query = 'create database `' . $siteName . '`;';
         $command = 'echo "create database ' . $siteName . '" | mysql -u root -h 127.0.0.1';
         exec($command, $output, $status);
 
@@ -124,19 +123,21 @@ class Create extends Command implements CommandInterface
     {
         $command = "cd " . $this->projectFolder . "/htdocs && cp .env.example .env ";
 
-        echo $command;
         exec($command , $output, $status);
 
         if ( 0 !== $status )
         {
             echo 'failed creating .env file';
 
-            $info = explode( PHP_EOL, file_get_contents( $this->projectFolder . '/htdocs/.env' ) );
-
-            // TODO: set necessary env-variables automatically.
-            die();
         } else {
-            echo '.env-file created';
+            // TODO: set necessary env-variables automatically.
+            // $info = explode( PHP_EOL, file_get_contents( $this->projectFolder . '/htdocs/.env' ) );
+            if ( true === $this->setEnvVariables())
+            {
+                echo '.env-file created';
+            } else {
+                exit();
+            }
         }
     }
 
@@ -155,7 +156,43 @@ class Create extends Command implements CommandInterface
 
     private function installWordPress()
     {
+        //--url=a13.test --title=Test --admin_user=towa_admin --admin_password=dev --admin_email=ranko.spegar@towa.com
         $command = 'echo "wp core install"';
+        exec($command, $output, $status);
+    }
 
+    private function setEnvVariables()
+    {
+        $path = $this->projectFolder . '/htdocs/.env';
+        $info = explode( PHP_EOL, file_get_contents( $path ) );
+        $env = [];
+        $orgEnv = [];
+
+        //collect($info)->map()
+
+        foreach ( $info as $row ){
+            if ( empty($row) or false !== strpos( $row, '#')){
+                continue;
+            }
+
+            $kv = explode( '=', $row );
+            $orgEnv[$kv[0]] = $kv[1];
+        }
+
+        $env['DB_NAME'] = 'a20';
+        $env['DB_USER'] = 'root';
+        $env['DB_PASSWORD'] = '';
+        $env['WP_ENV'] = 'development';
+        $env['DB_HOME'] = 'a20.loc';
+
+        $newEnv = array_merge( $orgEnv, $env );
+
+        $result = file_put_contents($path, $newEnv);
+
+        if ( false !== $result )
+        {
+
+            return true;
+        }
     }
 }
