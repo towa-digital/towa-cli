@@ -13,6 +13,7 @@ class Create extends Command implements CommandInterface
 {
     private $devilboxSrc;
     private $publicFolder;
+    private $projectFolder;
 
     public function __construct(CLImate $climate)
     {
@@ -35,41 +36,28 @@ class Create extends Command implements CommandInterface
 
         } else {
             $siteName = $this->getSiteName();
-            $projectFolder = $this->createProjectPath($siteName);
+            $this->projectFolder = $this->createProjectPath($siteName);
             $repoConfig = $this->getRepoConfiguration();
 
-//            if (mkdir($projectFolder)){
-//
-//                // boilerplate pullen via git
-//                //
-//            }
+            exec("cd " . $this->devilboxSrc . $this->publicFolder . " && git clone " . $repoConfig['repo'] . ' ' . $siteName . '/htdocs' , $output, $status);
 
-            $result = shell_exec("cd " . $this->devilboxSrc . $this->publicFolder . " && git clone " . $repoConfig['repo'] . ' ' . $siteName . '/htdocs' );
-
-            if ( null === $result )
+            if ( 0 !== $status )
             {
-                echo 'oha';
+                echo 'failed cloning repository';
+                die();
             }
             else {
                 // datenbank erstellen
-                // host file eintrag --> wichtig document-root einstellen auf /web
-                    // version 1, pwd eingabe weil sudo rechte notwendig
-                    // version 2, globale localhost-umleitung
-                // .env für projekt erstellen
-                // wp downloaden
-                // wp installieren
-                // info für user mit login-url
+                $this->createDatabase($siteName);
             }
 
+            $this->createProjectEnvFile();
+            $this->installComposerDependencies();
+            $this->installWordPress();
+            /*$this->addHostsEntry();
+            $this->showSiteInfo();*/
 
-
-            try {
-                $this->saveSiteToConfig($siteName, $site);
-            } catch (\Exception $e) {
-                self::$climate->error('Meh... failed to update vvv-config.yml');
-                self::$climate->error($e->getMessage());
-            }
-            $this->notifyOnSuccess($siteName);
+            // $this->notifyOnSuccess($siteName);
 
             return true;
         }
@@ -118,5 +106,56 @@ class Create extends Command implements CommandInterface
     private function createProjectPath($siteName)
     {
         return $this->devilboxSrc . $this->publicFolder . $siteName;
+    }
+
+    private function createDatabase($siteName)
+    {
+        $query = 'create database `' . $siteName . '`;';
+        $command = 'echo "create database ' . $siteName . '" | mysql -u root -h 127.0.0.1';
+        exec($command, $output, $status);
+
+        if ( 0 !== $status ) {
+            echo 'failed creating database';
+            die();
+        }
+    }
+
+    private function createProjectEnvFile()
+    {
+        $command = "cd " . $this->projectFolder . "/htdocs && cp .env.example .env ";
+
+        echo $command;
+        exec($command , $output, $status);
+
+        if ( 0 !== $status )
+        {
+            echo 'failed creating .env file';
+
+            $info = explode( PHP_EOL, file_get_contents( $this->projectFolder . '/htdocs/.env' ) );
+
+            // TODO: set necessary env-variables automatically.
+            die();
+        } else {
+            echo '.env-file created';
+        }
+    }
+
+    private function installComposerDependencies()
+    {
+        exec("cd " . $this->projectFolder . "/htdocs && composer install" , $output, $status);
+
+        if ( 0 !== $status )
+        {
+            echo 'failed composer install';
+            die();
+        } else {
+            echo 'composer dependencies installed';
+        }
+    }
+
+    private function installWordPress()
+    {
+        $command = 'echo "wp core install"';
+
     }
 }
