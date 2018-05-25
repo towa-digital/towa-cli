@@ -9,6 +9,10 @@
     {
       "name": "Simon Ellensohn",
       "email": "simon.ellensohn@towa.at"
+    },
+    {
+      "name": "SahinU88",
+      "email": "sahin.ucar@towa.at"
     }
   ],
   "bin": [
@@ -24,7 +28,8 @@
   },
   "require": {
     "league/climate": "^3.2",
-    "symfony/process": "^3.2"
+    "symfony/process": "^3.2",
+    "symfony/yaml": "^3.2"
   },
   "require-dev": {
     "symfony/var-dumper": "*"
