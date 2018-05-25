@@ -1,40 +1,39 @@
 {
-    "name": "towa/towa-cli",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "David Seidl",
-            "email": "david.seidl@towa.at"
-        },
-        {
-            "name": "Simon Ellensohn",
-            "email": "simon.ellensohn@towa.at"
-        }
-    ],
-    "bin": [
-        "towa-project"
-    ],
-    "autoload": {
-        "psr-4": {
-            "Towa\\Setup\\": "src/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+  "name": "towa/towa-cli",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Seidl",
+      "email": "david.seidl@towa.at"
     },
-    "require": {
-        "league/climate": "^3.2",
-        "symfony/yaml": "^3.2",
-        "symfony/process": "^3.2"
+    {
+      "name": "Simon Ellensohn",
+      "email": "simon.ellensohn@towa.at"
+    }
+  ],
+  "bin": [
+    "towa-project"
+  ],
+  "autoload": {
+    "psr-4": {
+      "Towa\\Setup\\": "src/"
     },
-    "require-dev": {
-        "symfony/var-dumper": "*"
-    },
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "optimize-autoloader": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "require": {
+    "league/climate": "^3.2",
+    "symfony/process": "^3.2"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "*"
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

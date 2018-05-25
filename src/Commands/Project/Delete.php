@@ -1,6 +1,6 @@
 <?php
 
-namespace Towa\Setup\Commands;
+namespace Towa\Setup\Commands\Project;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -10,7 +10,7 @@ use Towa\Setup\Utilities\YamlParser;
 
 class Delete extends Command implements CommandInterface
 {
-    public $description = 'Delete some old shit';
+    public $description = 'Delete project';
     public $sites = [];
 
     public function execute()

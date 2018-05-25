@@ -10,9 +10,7 @@ class YamlParser
     {
         $data = Yaml::parse(file_get_contents($file));
 
-        return array_key_exists($key, $data)
-            ? $data[$key]
-            : null;
+        return $data[$key] ?? null;
     }
 
     public static function readFile($file)

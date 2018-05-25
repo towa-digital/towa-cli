@@ -4,61 +4,52 @@ namespace Towa\Setup;
 
 use FilesystemIterator;
 use League\CLImate\CLImate;
-use Towa\Setup\Utilities\Config;
+use Towa\Setup\Commands\Project\Create;
 
 class Command
 {
     /* @var CLImate */
-    public static $climate;
+    public $climate;
 
-    /**
-     * Command constructor.
-     *
-     * @param $climate CLImate
-     */
     public function __construct(CLImate $climate)
     {
-        self::$climate = $climate;
+        $this->climate = $climate;
     }
 
     public function run()
     {
         $this->drawTowa();
+        $Command = $this->decideWhatToExecute();
 
-        (new Config());
+        (new $Command($this->climate))->execute();
 
-        $this->decideWhatToExecute();
-
-        // start provisioning
-        self::$climate->info('Done!');
+        $this->climate->info('Done!');
     }
 
     private function drawTowa()
     {
-        self::$climate->towa()->addArt(__DIR__.'/../art');
-        self::$climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
+        $this->climate->towa()->addArt(__DIR__ . '/../art');
+        $this->climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
     }
 
     protected function decideWhatToExecute()
     {
-        $input = self::$climate->radio('Whatcha wanna do?', [
-            'Towa\Setup\Commands\Create' => 'Add new site',
-            'Towa\Setup\Commands\Delete' => 'Delete existing sites',
+        $input = $this->climate->radio('Yes?', [
+            Create::class => 'Add new devilbox-project',
         ]);
 
         $class = $input->prompt();
 
-        // TODO: different way to reprompt?
-        if (empty($class)) {
+        if (null === $class) {
             $this->decideWhatToExecute();
         }
 
-        return (new $class(self::$climate))->execute();
+        return $class;
     }
 
     protected function question($question, $required = false, $default = '')
     {
-        $input = self::$climate->input($question);
+        $input = $this->climate->cyan()->input($question);
 
         if ($required) {
             $input->accept(function ($response) {
@@ -73,18 +64,13 @@ class Command
         return $input->prompt();
     }
 
-    protected function getSiteName()
-    {
-        return $this->question('<cyan>Seiten/Projekt Name?</cyan>', true);
-    }
-
     private function getArt()
     {
         $count = iterator_count(
-            new FilesystemIterator(__DIR__.'/../art', FilesystemIterator::SKIP_DOTS)
+            new FilesystemIterator(__DIR__ . '/../art', FilesystemIterator::SKIP_DOTS)
         );
 
-        return 'towa'.rand(1, $count);
+        return 'towa' . random_int(1, $count);
     }
 
     private function getAnimationDirection()
@@ -94,8 +80,8 @@ class Command
         return $directions[array_rand($directions, 1)];
     }
 
-    public static function log(string $message)
+    public function log(string $message)
     {
-        return self::$climate->comment($message);
+        return $this->climate->comment($message);
     }
 }
