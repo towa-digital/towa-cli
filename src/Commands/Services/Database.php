@@ -6,8 +6,9 @@ use Towa\Setup\Command;
 
 class Database extends Command
 {
-    private $user;
-    private $host;
+    private $user = 'root';
+    private $password;
+    private $host = '127.0.0.1';
     private $port;
 
     /**
@@ -30,9 +31,9 @@ class Database extends Command
         }
     }
 
-    public function set_user($user): void
+    public function set_password($password): void
     {
-        $this->user = $user;
+        $this->password = $password;
     }
 
     public function set_host($host): void

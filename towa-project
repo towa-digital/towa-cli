@@ -7,4 +7,6 @@ if (file_exists(__DIR__ . '/../../autoload.php')) {
     require __DIR__.'/vendor/autoload.php';
 }
 
+Env::init();
+
 (new Towa\Setup\Command(new League\CLImate\CLImate))->run();

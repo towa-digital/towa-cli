@@ -2,6 +2,7 @@
 
 namespace Towa\Setup\Commands\Project;
 
+use Dotenv\Dotenv;
 use League\CLImate\CLImate;
 use Towa\Setup\Command;
 use Towa\Setup\Commands\Services\Database;
@@ -31,12 +32,20 @@ class Create extends Command implements CommandInterface
      * @throws \RuntimeException if defined tasks can't be processed
      * @return bool
      */
-    public function execute() : bool
+    public function execute(): bool
     {
         $this->devilbox_path = $this->getDevilboxPath();
 
         if (!$this->isDevilboxPresent()) {
             throw new \RuntimeException('Devilbox is not installed. Please install first: https://github.com/cytopia/devilbox');
+        }
+
+        // get devilbox-env-configuration for further use
+        $devilbox_env = new Dotenv($this->devilbox_path);
+        if (file_exists($this->devilbox_path . '/.env')) {
+            $devilbox_env->load();
+        } else {
+            throw new \RuntimeException('Could not find .env-file for devilbox. Looked at: ' . $this->devilbox_path);
         }
 
         $site_name = $this->getSiteName();
@@ -47,12 +56,13 @@ class Create extends Command implements CommandInterface
         (new Repository($this->climate))->pull($repository, $projectPath);
 
         if ($this->create_database()) {
+            $this->climate->info('Using devilbox-configuration for database setup.');
             $db = new Database($this->climate);
-            $db->set_user('root');
-            $db->set_host('127.0.0.1');
-            $db->set_port('8806');
+            $db->set_port(env('HOST_PORT_MYSQL'));
             $db->create($site_name);
         }
+
+        $this->show_project_summary();
 
         return true;
     }
@@ -69,7 +79,7 @@ class Create extends Command implements CommandInterface
         );
 
         $path = $this->question(
-            "Devilbox Installation Directory? [<yellow>$devilbox_default_path)</yellow>]",
+            "Devilbox Installation Directory? [<yellow>$devilbox_default_path</yellow>]",
             false,
             $devilbox_default_path
         );
@@ -110,5 +120,27 @@ class Create extends Command implements CommandInterface
     private function create_database()
     {
         return $this->climate->confirm('Create Database-Schema?')->confirmed();
+    }
+
+    private function show_project_summary()
+    {
+        $info = [
+            'Project Url' => 'test.local',
+            'Project Path' => $this->devilbox_project_folder,
+            'Database Name' => false,
+        ];
+
+        $this->climate->br();
+
+        $padding = $this->climate->padding('15', '.');
+        foreach ($info as $label => $value)
+        {
+            if ($value){
+                $this->climate->tab();
+                $padding->label($label)->result($value);
+            }
+        }
+
+        $this->climate->br();
     }
 }

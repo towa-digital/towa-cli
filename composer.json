@@ -28,8 +28,9 @@
   },
   "require": {
     "league/climate": "^3.2",
+    "oscarotero/env": "^1.1",
     "symfony/process": "^3.2",
-    "symfony/yaml": "^3.2"
+    "vlucas/phpdotenv": "^2.4"
   },
   "require-dev": {
     "symfony/var-dumper": "*"
