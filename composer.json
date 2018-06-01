@@ -13,6 +13,10 @@
     {
       "name": "SahinU88",
       "email": "sahin.ucar@towa.at"
+    },
+    {
+      "name": "Ranko Spengar",
+      "email": "ranko.spengar@towa.at"
     }
   ],
   "bin": [
@@ -23,7 +27,7 @@
       "Towa\\Setup\\": "src/"
     },
     "files": [
-      "src/helpers.php"
+      "src/Helpers/global.php"
     ]
   },
   "require": {

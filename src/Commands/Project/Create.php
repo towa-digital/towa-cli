@@ -23,11 +23,6 @@ class Create extends Command implements CommandInterface
         $this->boilerplate_url = 'git@bitbucket.org:towa_gmbh/towa-workflow-boilerplate.git';
     }
 
-    public function isDevilboxPresent()
-    {
-        return file_exists($this->devilbox_path . '/docker-compose.yml');
-    }
-
     /**
      * @throws \RuntimeException if defined tasks can't be processed
      * @return bool
@@ -67,10 +62,15 @@ class Create extends Command implements CommandInterface
         return true;
     }
 
+    private function isDevilboxPresent()
+    {
+        return file_exists($this->devilbox_path . '/docker-compose.yml');
+    }
+
     private function getDevilboxPath()
     {
         $user = get_current_user();
-        $os_user_home = $this->determine_os_user_home_dir();
+        $os_user_home = determine_os_user_home_dir();
 
         $devilbox_default_path = sprintf(
             '%1$s/%2$s/Devilbox/',
@@ -104,17 +104,6 @@ class Create extends Command implements CommandInterface
     private function set_project_path($site_name)
     {
         $this->devilbox_project_folder = $this->devilbox_path . $this->devilbox_www_path . $site_name;
-    }
-
-    private function determine_os_user_home_dir()
-    {
-        $os = [
-            'mac' => '/Users',
-            'linux' => '/home',
-            'winnt' => '/Users',
-        ];
-
-        return $os[strtolower(PHP_OS)] ?? '';
     }
 
     private function create_database()

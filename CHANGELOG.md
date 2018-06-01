@@ -6,6 +6,8 @@
 
 + env-file helper
 + project-summary mockup-function
++ basic show-projects-command
++ exit command
 
 ### Updated
 

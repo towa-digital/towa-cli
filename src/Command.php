@@ -5,6 +5,7 @@ namespace Towa\Setup;
 use FilesystemIterator;
 use League\CLImate\CLImate;
 use Towa\Setup\Commands\Project\Create;
+use Towa\Setup\Commands\Project\Show;
 
 class Command
 {
@@ -19,11 +20,7 @@ class Command
     public function run()
     {
         $this->drawTowa();
-        $Command = $this->decideWhatToExecute();
-
-        (new $Command($this->climate))->execute();
-
-        $this->climate->info('Done!');
+        $this->showAvailableCommands();
     }
 
     private function drawTowa()
@@ -32,10 +29,26 @@ class Command
         $this->climate->animation($this->getArt())->enterFrom($this->getAnimationDirection());
     }
 
+    private function showAvailableCommands()
+    {
+        $Command = $this->decideWhatToExecute();
+
+        if ('exit' === $Command){
+            $this->climate->info('Bye!');
+            exit();
+        }
+
+        (new $Command($this->climate))->execute();
+
+        $this->showAvailableCommands();
+    }
+
     protected function decideWhatToExecute()
     {
-        $input = $this->climate->radio('Yes?', [
+        $input = $this->climate->radio('What shall I do?', [
             Create::class => 'Add new devilbox-project',
+            Show::class => 'Show current projects',
+            'exit' => 'Bye!',
         ]);
 
         $class = $input->prompt();
