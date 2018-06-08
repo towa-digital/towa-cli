@@ -2,6 +2,7 @@
 
 namespace Towa\Setup\Commands\Services;
 
+use mysqli;
 use Towa\Setup\Command;
 
 class Database extends Command
@@ -29,6 +30,23 @@ class Database extends Command
         if (0 !== $status) {
             throw new \RuntimeException('Could not create database. Details: ' . $output);
         }
+    }
+
+    public function all_databases()
+    {
+        $mysqli = new mysqli($this->host, $this->user, $this->password, '', $this->port);
+
+        if ($mysqli->connect_errno) {
+            throw new \RuntimeException('Could not connect to mysql. Details: ' . $mysqli->connect_errno . ': ' . $mysqli->connect_error );
+        }
+
+        $query = 'SHOW DATABASES;';
+
+        if( ! $result = $mysqli->query($query) ){
+            throw new \RuntimeException('Failed executing query: "' . $query . '" - ' . $mysqli->connect_errno . ': ' . $mysqli->connect_error );
+        }
+
+        return $result->fetch_row();
     }
 
     public function set_password($password): void

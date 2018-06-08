@@ -3,8 +3,10 @@
 
 namespace Towa\Setup\Commands\Project;
 
+use Dotenv\Dotenv;
 use League\CLImate\CLImate;
 use Towa\Setup\Command;
+use Towa\Setup\Commands\Services\Database;
 use Towa\Setup\Interfaces\CommandInterface;
 
 class Show extends Command implements CommandInterface
@@ -15,6 +17,7 @@ class Show extends Command implements CommandInterface
     public function __construct(CLImate $climate)
     {
         parent::__construct($climate);
+
         $this->devilbox_www_path = 'data/www/';
     }
 
@@ -26,13 +29,29 @@ class Show extends Command implements CommandInterface
             throw new \RuntimeException('Devilbox is not installed. Please install first: https://github.com/cytopia/devilbox');
         }
 
+        // get devilbox-env-configuration for further use
+        $devilbox_env = new Dotenv($this->devilbox_path);
+        if (file_exists($this->devilbox_path . '/.env')) {
+            $devilbox_env->load();
+        } else {
+            throw new \RuntimeException('Could not find .env-file for devilbox. Looked at: ' . $this->devilbox_path);
+        }
+
         $projects = $this->find_projects();
+        $databases = collect($this->find_databases());
+
+        $data = collect($projects)
+            ->map(function ($item) use ($databases) {
+                return [
+                    'project' => $item,
+                    'has_database' => $databases->contains($item) ? 'yes' : 'no',
+                ];
+            })
+            ->values()
+            ->toArray();
 
         // show table with project, path and hasDatabase?
-        foreach ($projects as $project )
-        {
-            $this->climate->info($project);
-        }
+        $this->climate->table($data);
     }
 
     private function isDevilboxPresent()
@@ -63,7 +82,16 @@ class Show extends Command implements CommandInterface
     private function find_projects()
     {
         return array_diff(
-            scandir( $this->devilbox_path . $this->devilbox_www_path, SCANDIR_SORT_ASCENDING ), [ '.', '..' ]
+            scandir($this->devilbox_path . $this->devilbox_www_path, SCANDIR_SORT_ASCENDING), ['.', '..']
         );
+    }
+
+    private function find_databases()
+    {
+        $db = new Database($this->climate);
+        $db->set_password('');
+        $db->set_port(env('HOST_PORT_MYSQL'));
+
+        return $db->all_databases();
     }
 }
