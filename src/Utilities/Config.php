@@ -38,7 +38,7 @@ class Config
 
         $config = YamlParser::readFile($this->path);
         $config['path'] = getenv('HOME').'/vvv';
-        $config['path_config'] = getenv('HOME').'/vvv/vvv-config.yml';
+        $config['path_config'] = getenv('HOME').'/vvv/vvv-custom.yml';
 
         YamlParser::writeFile($config, $this->path);
     }
